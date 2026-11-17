@@ -285,6 +285,55 @@ La aplicación queda disponible en:
 
 > Al ser un almacenamiento en memoria, los datos se pierden cada vez que se reinicia el servidor (incluido el reload de desarrollo).
 
+## Pruebas
+
+La suite cubre solo la entidad `Student`, con tests unitarios y E2E.
+
+- **Unitarios**: validación de schemas y lógica de `StudentsService` con repositorios falsos. No requieren PostgreSQL.
+- **E2E**: API completa con `TestClient`, sesión real y PostgreSQL de prueba.
+
+La base de test es independiente de la de desarrollo:
+
+- Servicio `db-test` definido en `docker-compose.test.yml`.
+- Puerto `5433`.
+- Base `icinf1108_test`.
+- Datos en `tmpfs`, por lo que se pierden al bajar el contenedor.
+- El esquema se crea con las migraciones de Alembic.
+- Las tablas se truncan antes de cada test.
+
+Comandos:
+
+```bash
+make test-unit           # unitarios, sin base de datos
+make test-e2e            # levanta db-test y ejecuta los E2E
+make test                # suite completa
+make test-down           # baja db-test y elimina sus datos
+```
+
+También se puede ejecutar directamente:
+
+```bash
+uv run pytest -m unit
+uv run pytest -m e2e
+uv run pytest
+```
+
+Si necesitas apuntar a otra base, define `TEST_DATABASE_URL`. El nombre de la base debe terminar en `_test` para evitar truncar una base de desarrollo por error.
+
+### Cómo leer los tests
+
+- Cada función de test tiene un docstring que explica qué verifica y qué espera.
+- Los casos parametrizados usan `ids` legibles, por ejemplo `vacio`, `corto` o `html`.
+- `tests/conftest.py` documenta las fixtures de base de datos, `TestClient` y sesión autenticada.
+- `tests/students/conftest.py` documenta los repositorios falsos y los datos reutilizables.
+- Los tests unitarios no tocan PostgreSQL. Los E2E usan la base de test y una sesión real.
+
+Para ejecutar un test puntual:
+
+```bash
+uv run pytest tests/students/unit/test_service.py::test_create_without_pets -v
+```
+
 ## Comandos útiles
 
 - `make install` — sincroniza dependencias con uv

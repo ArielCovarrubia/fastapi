@@ -1,4 +1,4 @@
-.PHONY: install dev prod lint format format-check clean check-tools up down logs db db-reset migrate
+.PHONY: install dev prod lint format format-check clean check-tools up down logs db db-reset migrate test-db test test-unit test-e2e test-down
 
 check-tools:
 	@if ! command -v uv >/dev/null 2>&1; then \
@@ -55,3 +55,25 @@ migrate:
 # Borra la base de datos (elimina el volumen pgdata)
 db-reset:
 	docker compose down -v
+
+# --- Tests ------------------------------------------------------------------
+
+# Levanta PostgreSQL aislado para los tests en el puerto 5433.
+test-db:
+	docker compose -f docker-compose.test.yml up -d --wait
+
+# Unitarios: no requieren base de datos.
+test-unit:
+	uv run pytest -m unit
+
+# E2E: levanta la base de test y ejecuta solo esos tests.
+test-e2e: test-db
+	uv run pytest -m e2e
+
+# Suite completa: unitarios + E2E.
+test: test-db
+	uv run pytest
+
+# Baja la base de test y elimina sus datos temporales.
+test-down:
+	docker compose -f docker-compose.test.yml down -v
