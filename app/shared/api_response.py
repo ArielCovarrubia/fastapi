@@ -55,6 +55,10 @@ async def envelope_middleware(
 ) -> Response:
     response: Response = await call_next(request)
 
+    # 204 no tiene cuerpo: no se puede envolver en el envelope JSON.
+    if response.status_code == 204:
+        return response
+
     if not request.url.path.startswith("/api") or not 200 <= response.status_code < 400:
         return response
 

@@ -5,9 +5,10 @@ from sqlalchemy import create_engine
 
 # Se importan todos los modelos para que Alembic conozca sus tablas
 # (lo necesita `alembic revision --autogenerate`).
-import app.pets.pets_models  # noqa: F401
-import app.students.students_models  # noqa: F401
-import app.users.users_models  # noqa: F401
+import app.auth.models  # noqa: F401
+import app.pets.models  # noqa: F401
+import app.students.models  # noqa: F401
+import app.users.models  # noqa: F401
 from app.shared.config import DATABASE_URL
 from app.shared.database import Base
 

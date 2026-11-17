@@ -90,6 +90,15 @@
 					></p>
 				</div>
 
+				<div x-show="mode === 'login'" class="flex justify-end">
+					<a
+						href="/forgot-password.html"
+						class="text-sm font-medium text-zinc-900 underline-offset-2 hover:underline"
+					>
+						¿Olvidaste tu contraseña?
+					</a>
+				</div>
+
 				<button
 					type="submit"
 					:disabled="busy"

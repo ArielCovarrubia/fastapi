@@ -5,8 +5,8 @@ from fastapi.staticfiles import StaticFiles
 from sqlalchemy.exc import IntegrityError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 
-from app.auth.auth_controller import router as auth_router
-from app.pets.pets_controller import router as pets_router
+from app.auth.controller import router as auth_router
+from app.pets.controller import router as pets_router
 from app.shared.api_response import envelope_middleware
 from app.shared.exceptions import (
     generic_exception_handler,
@@ -14,7 +14,7 @@ from app.shared.exceptions import (
     integrity_error_handler,
     validation_exception_handler,
 )
-from app.students.students_controller import router as students_router
+from app.students.controller import router as students_router
 
 
 def create_app() -> FastAPI:

@@ -13,6 +13,8 @@ services:
     environment:
       # Dentro de la red de Compose, Postgres se llama "db" (el nombre del servicio)
       DATABASE_URL: postgres://${POSTGRES_USER:-postgres}:${POSTGRES_PASSWORD:-postgres}@db:5432/${POSTGRES_DB:-icinf1108}
+      PASSWORD_RESET_SECRET: ${PASSWORD_RESET_SECRET:-dev-password-reset-secret-change-me}
+      PASSWORD_RESET_TTL_MINUTES: ${PASSWORD_RESET_TTL_MINUTES:-15}
       # Detecta cambios en archivos montados desde Windows/WSL
       WATCHFILES_FORCE_POLLING: "true"
     volumes:

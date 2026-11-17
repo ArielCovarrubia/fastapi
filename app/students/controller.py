@@ -1,13 +1,13 @@
 from fastapi import APIRouter, Depends
 
 from app.auth.session import require_session
-from app.students.students_schemas import (
+from app.students.schemas import (
     CreateStudentDto,
     Student,
     StudentList,
     UpdateStudentDto,
 )
-from app.students.students_service import StudentsServiceDep
+from app.students.service import StudentsServiceDep
 
 # Todas las rutas de este router exigen una sesión iniciada.
 router = APIRouter(

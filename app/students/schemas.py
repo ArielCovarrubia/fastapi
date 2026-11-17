@@ -9,7 +9,7 @@ from pydantic import (
     field_validator,
 )
 
-from app.pets.pets_schemas import CreatePetDto
+from app.pets.schemas import CreatePetDto
 from app.shared.datetimes import ApiDatetime
 from app.shared.validation import validate_email, validate_int, validate_text
 

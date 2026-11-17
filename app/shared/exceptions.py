@@ -99,9 +99,28 @@ LOGIN_MISSING_MESSAGES: Final[dict[str, str]] = {
     "password": "La contraseña debe ser un texto, La contraseña no puede estar vacía",
 }
 
+FORGOT_PASSWORD_MISSING_MESSAGES: Final[dict[str, str]] = {
+    "email": STUDENT_MISSING_MESSAGES["email"],
+}
+
+RESET_PASSWORD_MISSING_MESSAGES: Final[dict[str, str]] = {
+    "reset_token": (
+        "El token de recuperación debe ser un texto, "
+        "El token de recuperación no puede estar vacío"
+    ),
+    "new_password": (
+        "La contraseña debe ser un texto, "
+        "La contraseña debe tener entre 8 y 72 caracteres"
+    ),
+}
+
 
 def _missing_field_message(path: str, field: str) -> str:
-    if path.startswith("/api/auth/register"):
+    if path.startswith("/api/auth/password/forgot"):
+        table = FORGOT_PASSWORD_MISSING_MESSAGES
+    elif path.startswith("/api/auth/password/reset"):
+        table = RESET_PASSWORD_MISSING_MESSAGES
+    elif path.startswith("/api/auth/register"):
         table = REGISTER_MISSING_MESSAGES
     elif path.startswith("/api/auth/login"):
         table = LOGIN_MISSING_MESSAGES

@@ -51,20 +51,33 @@ const LOGIN_PAGE = "/login.html"
  * @template T
  * @param {string} path Ruta relativa al prefijo `/api`.
  * @param {RequestInit} [options] Opciones de `fetch`.
+ * @param {{ redirectOnUnauthorized?: boolean }} [config] Opciones propias de
+ *   `api` que no se envían a `fetch`.
  * @returns {Promise<T>}
  */
-async function api(path, options = {}) {
+async function api(path, options = {}, config = {}) {
 	const response = await fetch(`${API_BASE}${path}`, {
 		headers: { "Content-Type": "application/json" },
 		...options,
 	})
 
+	const redirectOnUnauthorized = config.redirectOnUnauthorized ?? true
+
 	// Sin sesión (o sesión expirada): se envía al login y, al entrar, se
 	// vuelve a la página actual. En el propio login el 401 se muestra como error.
-	if (response.status === 401 && window.location.pathname !== LOGIN_PAGE) {
+	if (
+		redirectOnUnauthorized &&
+		response.status === 401 &&
+		window.location.pathname !== LOGIN_PAGE
+	) {
 		const next = encodeURIComponent(window.location.pathname + window.location.search)
 		window.location.href = `${LOGIN_PAGE}?next=${next}`
 		return new Promise(() => {})
+	}
+
+	// 204 no trae cuerpo y el endpoint de reset lo usa.
+	if (response.status === 204) {
+		return /** @type {T} */ (/** @type {any} */ (undefined))
 	}
 
 	/** @type {ApiPayload} */

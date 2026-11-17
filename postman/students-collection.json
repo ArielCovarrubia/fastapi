@@ -12,6 +12,10 @@
         {
             "key": "studentId",
             "value": ""
+        },
+        {
+            "key": "resetToken",
+            "value": ""
         }
     ],
     "item": [
@@ -69,6 +73,62 @@
                         "body": {
                             "mode": "raw",
                             "raw": "{\n    \"email\": \"ayudante@test.cl\",\n    \"password\": \"secreto123\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Forgot Password",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/password/forgot",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "password",
+                                "forgot"
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"email\": \"ayudante@test.cl\"\n}"
+                        }
+                    }
+                },
+                {
+                    "name": "Reset Password",
+                    "request": {
+                        "method": "POST",
+                        "url": {
+                            "raw": "{{baseUrl}}/api/auth/password/reset",
+                            "host": [
+                                "{{baseUrl}}"
+                            ],
+                            "path": [
+                                "api",
+                                "auth",
+                                "password",
+                                "reset"
+                            ]
+                        },
+                        "header": [
+                            {
+                                "key": "Content-Type",
+                                "value": "application/json"
+                            }
+                        ],
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"reset_token\": \"{{resetToken}}\",\n    \"new_password\": \"nueva-clave-123\"\n}"
                         }
                     }
                 },

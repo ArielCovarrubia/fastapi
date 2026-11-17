@@ -3,12 +3,12 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 
-from app.pets.pets_models import PetModel
-from app.pets.pets_repository import PetsRepository
-from app.pets.pets_schemas import CreatePetDto, Pet, PetList, UpdatePetDto
+from app.pets.models import PetModel
+from app.pets.repository import PetsRepository
+from app.pets.schemas import CreatePetDto, Pet, PetList, UpdatePetDto
 from app.shared.database import DbSession, parse_uuid
 from app.shared.exceptions import conflict
-from app.students.students_service import StudentsService
+from app.students.service import StudentsService
 
 
 class PetsService:

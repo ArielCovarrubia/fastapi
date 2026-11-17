@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from app.auth.session import require_session
-from app.pets.pets_schemas import CreatePetDto, Pet, PetList, UpdatePetDto
-from app.pets.pets_service import PetsServiceDep
+from app.pets.schemas import CreatePetDto, Pet, PetList, UpdatePetDto
+from app.pets.service import PetsServiceDep
 
 router = APIRouter(
     prefix="/api/students/{studentId}/pets",

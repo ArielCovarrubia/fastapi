@@ -1,21 +1,10 @@
 from datetime import datetime
-from uuid import UUID, uuid4
+from uuid import UUID
 
 from sqlalchemy import DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.database import Base, TimestampMixin
-
-
-# Usuarios que pueden iniciar sesión en la API (no confundir con Student,
-# que es el recurso del CRUD).
-class UserModel(TimestampMixin, Base):
-    __tablename__ = "users"
-
-    id: Mapped[UUID] = mapped_column(primary_key=True, default=uuid4)
-    name: Mapped[str] = mapped_column(String(100))
-    email: Mapped[str] = mapped_column(String(255), unique=True)
-    passwordHash: Mapped[str] = mapped_column("password_hash", String(255))
 
 
 # Sesiones iniciadas. Al navegador solo llega una cookie con el `id` de la
@@ -30,4 +19,20 @@ class UserSessionModel(Base):
     )
     expiresAt: Mapped[datetime] = mapped_column(
         "expires_at", DateTime(timezone=True), index=True
+    )
+
+
+# Enlaces de recuperación pendientes. Solo se guarda el `jti` del JWT: la
+# firma y la expiración se validan al decodificarlo.
+class PasswordResetTokenModel(TimestampMixin, Base):
+    __tablename__ = "password_reset_tokens"
+
+    jti: Mapped[str] = mapped_column(String(64), primary_key=True)
+    # Si se elimina el usuario, se eliminan sus enlaces pendientes.
+    userId: Mapped[UUID] = mapped_column(
+        "user_id", ForeignKey("users.id", ondelete="CASCADE"), index=True
+    )
+    # `None` mientras el enlace está pendiente; se marca al usarlo.
+    usedAt: Mapped[datetime | None] = mapped_column(
+        "used_at", DateTime(timezone=True), nullable=True
     )

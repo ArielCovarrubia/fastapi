@@ -35,3 +35,14 @@ SESSION_MAX_AGE_SECONDS: Final[int] = (
 
 # Solo debe ser `true` cuando la app se sirve por HTTPS.
 SESSION_COOKIE_SECURE: Final[bool] = os.getenv("SESSION_COOKIE_SECURE") == "true"
+
+# Secreto para firmar los JWT de recuperación de contraseña. El valor por
+# defecto es solo para desarrollo: en producción debe definirse en el entorno.
+PASSWORD_RESET_SECRET: Final[str] = os.getenv(
+    "PASSWORD_RESET_SECRET", "dev-password-reset-secret-change-me"
+)
+
+# Vigencia del enlace de recuperación (15 minutos por defecto).
+PASSWORD_RESET_TTL_MINUTES: Final[int] = int(
+    os.getenv("PASSWORD_RESET_TTL_MINUTES", "15")
+)

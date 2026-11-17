@@ -3,14 +3,14 @@ from uuid import UUID
 
 from fastapi import Depends, HTTPException, status
 
-from app.pets.pets_models import PetModel
-from app.pets.pets_repository import PetsRepository
+from app.pets.models import PetModel
+from app.pets.repository import PetsRepository
 from app.shared.database import DbSession, parse_uuid
 from app.shared.exceptions import conflict
 from app.shared.types import FieldErrors
-from app.students.students_models import StudentModel
-from app.students.students_repository import StudentsRepository
-from app.students.students_schemas import (
+from app.students.models import StudentModel
+from app.students.repository import StudentsRepository
+from app.students.schemas import (
     CreateStudentDto,
     Student,
     StudentList,

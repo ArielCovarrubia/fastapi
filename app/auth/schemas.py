@@ -4,7 +4,7 @@ from pydantic import BaseModel, ConfigDict, EmailStr, field_validator
 
 from app.shared.datetimes import ApiDatetime
 from app.shared.validation import validate_email, validate_text
-from app.students.students_schemas import (
+from app.students.schemas import (
     EMAIL_MESSAGES,
     NO_HTML_PATTERN,
     STUDENT_NAME_MESSAGES,
@@ -13,6 +13,8 @@ from app.students.students_schemas import (
 PASSWORD_TYPE_MESSAGE = "La contraseña debe ser un texto"
 PASSWORD_LENGTH_MESSAGE = "La contraseña debe tener entre 8 y 72 caracteres"
 PASSWORD_EMPTY_MESSAGE = "La contraseña no puede estar vacía"
+RESET_TOKEN_TYPE_MESSAGE = "El token de recuperación debe ser un texto"
+RESET_TOKEN_EMPTY_MESSAGE = "El token de recuperación no puede estar vacío"
 
 
 # Usuario sin el hash de la contraseña: lo único que sale de la API.
@@ -61,14 +63,7 @@ class RegisterDto(BaseModel):
     @field_validator("password", mode="before")
     @classmethod
     def _validate_password(cls, v: object) -> object:
-        errors: list[str] = []
-
-        if not isinstance(v, str):
-            errors.append(PASSWORD_TYPE_MESSAGE)
-        if not (isinstance(v, str) and 8 <= len(v) <= 72):
-            errors.append(PASSWORD_LENGTH_MESSAGE)
-
-        _raise_validation(errors)
+        _raise_validation(_new_password_errors(v))
         return v
 
 
@@ -96,6 +91,59 @@ class LoginDto(BaseModel):
 
         _raise_validation(errors)
         return v
+
+
+class ForgotPasswordDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    email: EmailStr
+
+    @field_validator("email", mode="before")
+    @classmethod
+    def _validate_email(cls, v: object) -> object:
+        _raise_validation(_email_errors(v))
+        return v
+
+
+class ResetPasswordDto(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    reset_token: str
+    new_password: str
+
+    @field_validator("reset_token", mode="before")
+    @classmethod
+    def _validate_reset_token(cls, v: object) -> object:
+        errors: list[str] = []
+
+        if not isinstance(v, str):
+            errors.append(RESET_TOKEN_TYPE_MESSAGE)
+        if not (isinstance(v, str) and v.strip() != ""):
+            errors.append(RESET_TOKEN_EMPTY_MESSAGE)
+
+        _raise_validation(errors)
+        return v
+
+    @field_validator("new_password", mode="before")
+    @classmethod
+    def _validate_new_password(cls, v: object) -> object:
+        _raise_validation(_new_password_errors(v))
+        return v
+
+
+class ForgotPasswordResponse(BaseModel):
+    reset_link: str | None
+
+
+def _new_password_errors(v: object) -> list[str]:
+    errors: list[str] = []
+
+    if not isinstance(v, str):
+        errors.append(PASSWORD_TYPE_MESSAGE)
+    if not (isinstance(v, str) and 8 <= len(v) <= 72):
+        errors.append(PASSWORD_LENGTH_MESSAGE)
+
+    return errors
 
 
 def _email_errors(v: object) -> list[str]:

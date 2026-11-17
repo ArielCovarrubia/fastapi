@@ -3,7 +3,7 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.pets.pets_models import PetModel
+from app.pets.models import PetModel
 
 
 class PetsRepository:

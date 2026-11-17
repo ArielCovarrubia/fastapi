@@ -27,6 +27,64 @@ La API expone operaciones CRUD completas sobre estudiantes y mascotas:
 - **Actualizar**: `PATCH /api/students/:studentId/pets/:petId`
 - **Eliminar**: `DELETE /api/students/:studentId/pets/:petId`
 
+**Autenticación** — `/api/auth`
+
+- **Registro**: `POST /api/auth/register`
+- **Inicio de sesión**: `POST /api/auth/login`
+- **Cierre de sesión**: `POST /api/auth/logout`
+- **Sesión actual**: `GET /api/auth/me`
+- **Solicitar recuperación**: `POST /api/auth/password/forgot`
+- **Restablecer contraseña**: `POST /api/auth/password/reset`
+
+### Recuperación de contraseña
+
+El flujo usa dos endpoints y un enlace con un JWT de vida corta.
+
+**Solicitar el enlace**
+
+```http
+POST /api/auth/password/forgot
+Content-Type: application/json
+
+{ "email": "ana@example.com" }
+```
+
+Si el correo existe, la API genera un JWT con `sub` (id del usuario), `jti` (identificador único), `purpose: "password_reset"` y `exp` de 15 minutos. El `jti` queda pendiente en la tabla `password_reset_tokens` y la respuesta incluye el enlace:
+
+```json
+{
+	"code": 200,
+	"success": true,
+	"message": "Operación exitosa",
+	"timestamp": "2026-11-17T16:00:00.000Z",
+	"data": {
+		"reset_link": "http://localhost:3000/reset-password.html?token=..."
+	}
+}
+```
+
+Si el correo no existe, la respuesta mantiene el mismo formato pero con `reset_link: null` y no se crea ningún token. Al pedir un enlace nuevo se invalida el anterior del mismo usuario.
+
+> En esta demo el correo no se envía: la API devuelve el enlace y la UI lo muestra como un enlace clickeable dentro de un bloque de "correo simulado". En producción el enlace debe enviarse por correo y no incluirse en la respuesta.
+
+**Restablecer la contraseña**
+
+```http
+POST /api/auth/password/reset
+Content-Type: application/json
+
+{
+	"reset_token": "...",
+	"new_password": "nueva-clave-123"
+}
+```
+
+La API valida firma, expiración y `purpose`, busca el `jti` pendiente y comprueba que no esté usado. Luego actualiza la contraseña, marca el token como usado y elimina todas las sesiones del usuario en una sola transacción. Responde `204 No Content`.
+
+Si el token es inválido, expiró o ya fue usado, responde `401` con el mensaje `El enlace de recuperación no es válido o expiró`.
+
+> El `204` es la única respuesta que no usa el envelope JSON, porque no tiene cuerpo. El middleware y el cliente estático lo manejan como caso especial.
+
 ### Alta de estudiante con mascotas
 
 `POST /api/students` acepta un arreglo opcional `pets`:
@@ -187,9 +245,12 @@ El cliente estático (`public/`) consume este estándar de forma uniforme:
 - **Backend**: FastAPI
 - **Persistencia**: en memoria (repositorios respaldados por diccionarios); los datos se pierden al reiniciar
 - **Validación**: Pydantic v2
+- **Autenticación**: sesiones en PostgreSQL; recuperación de contraseña con JWT firmado (PyJWT)
 - **Frontend**: archivos estáticos en `public/` (Alpine.js + Tailwind CSS + vanilla-sonner, vía CDN)
 - **Gestor de dependencias**: uv
 - **Documentación**: Swagger en `/docs`
+
+La recuperación de contraseña se configura con `PASSWORD_RESET_SECRET` y `PASSWORD_RESET_TTL_MINUTES`. Los valores de desarrollo están en [`.env.example`](.env.example) y el secreto debe cambiarse en producción.
 
 ## Ejecución local
 
